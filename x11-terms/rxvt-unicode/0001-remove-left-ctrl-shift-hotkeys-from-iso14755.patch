@@ -1,0 +1,28 @@
+From 78b87c43e603fbde94a4afbd31f83c1638152dcb Mon Sep 17 00:00:00 2001
+From: Lucian Poston <lucian.poston@gmail.com>
+Date: Sun, 18 Oct 2015 08:28:19 -0700
+Subject: [PATCH] remove left ctrl, shift hotkeys from iso14755
+
+Signed-off-by: Lucian Poston <lucian.poston@gmail.com>
+---
+ src/command.C | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/command.C b/src/command.C
+index d212764..75c6131 100644
+--- a/src/command.C
++++ b/src/command.C
+@@ -846,8 +846,8 @@ rxvt_term::key_press (XKeyEvent &ev)
+             }
+         }
+       else if (option (Opt_iso14755) &&
+-               ((ctrl && (keysym == XK_Shift_L || keysym == XK_Shift_R))
+-                || (shft && (keysym == XK_Control_L || keysym == XK_Control_R))))
++               ((ctrl && (keysym == XK_Shift_R))
++                || (shft && (keysym == XK_Control_R))))
+         if (!(iso14755buf & ISO_14755_STARTED))
+           {
+             iso14755buf |= ISO_14755_STARTED;
+-- 
+2.4.10
+
