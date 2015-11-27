@@ -1,0 +1,26 @@
+From 40f1b828202d1493d69c9d64cc7c127a96b00bb2 Mon Sep 17 00:00:00 2001
+From: Lucian Poston <lucian.poston@gmail.com>
+Date: Thu, 26 Nov 2015 12:04:42 -0800
+Subject: [PATCH] Disable disabling updating registry when updating wine
+
+Signed-off-by: Lucian Poston <lucian.poston@gmail.com>
+---
+ src/winetricks | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/winetricks b/src/winetricks
+index 5fbcb80..d4a494c 100755
+--- a/src/winetricks
++++ b/src/winetricks
+@@ -18893,7 +18893,7 @@ load_sandbox()
+     "$WINE" regedit /d 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Explorer\Desktop\Namespace\{9D20AAE8-0625-44B0-9CA7-71889C2254D9}'
+ 
+     # Disable recreation of the above key - or any updating of the registry - when running with a newer version of Wine.
+-    echo disable > "$WINEPREFIX/.update-timestamp"
++    #echo disable > "$WINEPREFIX/.update-timestamp"
+ }
+ 
+ #----------------------------------------------------------------
+-- 
+2.4.10
+
