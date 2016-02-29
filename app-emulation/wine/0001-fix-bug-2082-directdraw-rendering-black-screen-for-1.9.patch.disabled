@@ -1,0 +1,23 @@
+--- wine/dlls/ddraw/ddraw.c	2016-01-22 15:28:32.000000000 +0100
++++ wine/dlls/ddraw/ddraw.c	2016-01-28 01:32:19.289546347 +0100
+@@ -821,7 +821,8 @@ 
+             goto done;
+         }
+ 
+-        hr = ddraw_set_focus_window(ddraw, window);
++        hr = ddraw_set_focus_window(ddraw, GetDesktopWindow());
++        FIXME("This is a hacked ddraw drawing to the desktop window instead of the window the app requested!\n");
+         goto done;
+     }
+ 
+--- wine/dlls/wined3d/swapchain.c	2016-01-22 15:28:32.000000000 +0100
++++ wine/dlls/wined3d/swapchain.c	2016-01-28 01:39:48.339572556 +0100
+@@ -628,7 +628,7 @@ 
+     surface_load_location(front, NULL, WINED3D_LOCATION_DIB);
+ 
+     src_dc = front->hDC;
+-    window = swapchain->win_handle;
++    window = GetDesktopWindow();
+     dst_dc = GetDCEx(window, 0, DCX_CLIPSIBLINGS | DCX_CACHE);
+ 
+     /* Front buffer coordinates are screen coordinates. Map them to the
