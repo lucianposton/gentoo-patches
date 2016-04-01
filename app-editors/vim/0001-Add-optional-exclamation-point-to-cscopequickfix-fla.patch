@@ -1,0 +1,103 @@
+From aaadecd99dfaf737054eaa94322e673d05bfe4cf Mon Sep 17 00:00:00 2001
+From: Lucian Poston <lucian.poston@gmail.com>
+Date: Fri, 1 Apr 2016 13:41:05 -0700
+Subject: [PATCH] Add optional exclamation point to cscopequickfix flags to
+ disable insta-jump
+
+---
+ runtime/doc/if_cscop.txt |  7 +++++--
+ src/if_cscope.c          |  3 ++-
+ src/option.c             | 40 ++++++++++++++++++++++++++++++++--------
+ 3 files changed, 39 insertions(+), 11 deletions(-)
+
+diff --git a/runtime/doc/if_cscop.txt b/runtime/doc/if_cscop.txt
+index d8dc48f..bd5b217 100644
+--- a/runtime/doc/if_cscop.txt
++++ b/runtime/doc/if_cscop.txt
+@@ -256,9 +256,12 @@ started will have no effect!
+ 'cscopequickfix' specifies whether to use quickfix window to show cscope
+ results.  This is a list of comma-separated values. Each item consists of
+ |cscope-find| command (s, g, d, c, t, e, f or i) and flag (+, - or 0).
++The '+' and '-' flags may be followed by an optional '!'.
+ '+' indicates that results must be appended to quickfix window,
+-'-' implies previous results clearance, '0' or command absence - don't use
+-quickfix.  Search is performed from start until first command occurrence.
++'-' implies previous results clearance,
++'0' or command absence - don't use quickfix.
++With the option '!', cscope will not automatically jump to the first location.
++Search is performed from start until first command occurrence.
+ The default value is "" (don't use quickfix anyway).  The following value
+ seems to be useful: >
+ 	:set cscopequickfix=s-,c-,d-,i-,t-,e-
+diff --git a/src/if_cscope.c b/src/if_cscope.c
+index 4a72907..27e7acf 100644
+--- a/src/if_cscope.c
++++ b/src/if_cscope.c
+@@ -1292,7 +1292,8 @@ cs_find_common(
+ 		     */
+ 		    qi = (bt_quickfix(wp->w_buffer) && wp->w_llist_ref != NULL)
+ 			?  wp->w_llist_ref : wp->w_llist;
+-		qf_jump(qi, 0, 0, forceit);
++		if (qfpos[1] != '!')
++			qf_jump(qi, 0, 0, forceit);
+ 	    }
+ 	}
+ 	mch_remove(tmp);
+diff --git a/src/option.c b/src/option.c
+index 72d8cf7..2548674 100644
+--- a/src/option.c
++++ b/src/option.c
+@@ -7156,18 +7156,42 @@ did_set_string_option(
+ 	    p = p_csqf;
+ 	    while (*p != NUL)
+ 	    {
+-		if (vim_strchr((char_u *)CSQF_CMDS, *p) == NULL
+-			|| p[1] == NUL
+-			|| vim_strchr((char_u *)CSQF_FLAGS, p[1]) == NULL
+-			|| (p[2] != NUL && p[2] != ','))
++		int ok = FALSE;
++		if (vim_strchr((char_u *)CSQF_CMDS, *p) != NULL
++			&& p[1] != NUL
++			&& vim_strchr((char_u *)CSQF_FLAGS, p[1]) != NULL)
++		{
++			switch (p[2])
++			{
++			case NUL:
++				p += 2;
++				ok = TRUE;
++				break;
++			case ',':
++				p += 3;
++				ok = TRUE;
++				break;
++			case '!':
++				if (p[1] == '0')
++					break;
++				if (p[3] == NUL)
++				{
++					p += 3;
++					ok = TRUE;
++				}
++				else if (p[3] == ',')
++				{
++					p += 4;
++					ok = TRUE;
++				}
++				break;
++			}
++		}
++		if (!ok)
+ 		{
+ 		    errmsg = e_invarg;
+ 		    break;
+ 		}
+-		else if (p[2] == NUL)
+-		    break;
+-		else
+-		    p += 3;
+ 	    }
+ 	}
+     }
+-- 
+2.7.3
+

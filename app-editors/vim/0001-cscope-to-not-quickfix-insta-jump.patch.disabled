@@ -1,0 +1,57 @@
+From 55ef5b00a4c185e466cc7cf45ab882c76d6c2bea Mon Sep 17 00:00:00 2001
+From: Lucian Poston <lucian.poston@gmail.com>
+Date: Fri, 1 Apr 2016 12:52:13 -0700
+Subject: [PATCH] cscope[!] to not quickfix insta-jump
+
+---
+ runtime/doc/if_cscop.txt | 5 +++--
+ src/ex_cmds.h            | 2 +-
+ src/if_cscope.c          | 3 ++-
+ 3 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/runtime/doc/if_cscop.txt b/runtime/doc/if_cscop.txt
+index d8dc48f..bc48706 100644
+--- a/runtime/doc/if_cscop.txt
++++ b/runtime/doc/if_cscop.txt
+@@ -259,8 +259,9 @@ results.  This is a list of comma-separated values. Each item consists of
+ '+' indicates that results must be appended to quickfix window,
+ '-' implies previous results clearance, '0' or command absence - don't use
+ quickfix.  Search is performed from start until first command occurrence.
+-The default value is "" (don't use quickfix anyway).  The following value
+-seems to be useful: >
++The default value is "" (don't use quickfix anyway).  If cscope was executed
++with !, vim will not jump to the first error in the quickfix window.
++The following value seems to be useful: >
+ 	:set cscopequickfix=s-,c-,d-,i-,t-,e-
+ <
+ 							*cscopetag* *cst*
+diff --git a/src/ex_cmds.h b/src/ex_cmds.h
+index 89f84ed..9f7f441 100644
+--- a/src/ex_cmds.h
++++ b/src/ex_cmds.h
+@@ -386,7 +386,7 @@ EX(CMD_crewind,		"crewind",	ex_cc,
+ 			RANGE|NOTADR|COUNT|TRLBAR|BANG,
+ 			ADDR_LINES),
+ EX(CMD_cscope,		"cscope",	do_cscope,
+-			EXTRA|NOTRLCOM|XFILE,
++			EXTRA|NOTRLCOM|XFILE|BANG,
+ 			ADDR_LINES),
+ EX(CMD_cstag,		"cstag",	do_cstag,
+ 			BANG|TRLBAR|WORD1,
+diff --git a/src/if_cscope.c b/src/if_cscope.c
+index 4a72907..e96b252 100644
+--- a/src/if_cscope.c
++++ b/src/if_cscope.c
+@@ -1292,7 +1292,8 @@ cs_find_common(
+ 		     */
+ 		    qi = (bt_quickfix(wp->w_buffer) && wp->w_llist_ref != NULL)
+ 			?  wp->w_llist_ref : wp->w_llist;
+-		qf_jump(qi, 0, 0, forceit);
++		if (!forceit)
++			qf_jump(qi, 0, 0, forceit);
+ 	    }
+ 	}
+ 	mch_remove(tmp);
+-- 
+2.7.3
+
