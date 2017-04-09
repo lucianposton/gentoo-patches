@@ -1,6 +1,6 @@
-From aaadecd99dfaf737054eaa94322e673d05bfe4cf Mon Sep 17 00:00:00 2001
+From 41d9ccb3ec2fdb3a1e63cfaa6de18b3eaec4a851 Mon Sep 17 00:00:00 2001
 From: Lucian Poston <lucian.poston@gmail.com>
-Date: Fri, 1 Apr 2016 13:41:05 -0700
+Date: Mon, 10 Oct 2016 05:44:27 -0700
 Subject: [PATCH] Add optional exclamation point to cscopequickfix flags to
  disable insta-jump
 
@@ -11,13 +11,13 @@ Subject: [PATCH] Add optional exclamation point to cscopequickfix flags to
  3 files changed, 39 insertions(+), 11 deletions(-)
 
 diff --git a/runtime/doc/if_cscop.txt b/runtime/doc/if_cscop.txt
-index d8dc48f..bd5b217 100644
+index dbbe2bd..62059c1 100644
 --- a/runtime/doc/if_cscop.txt
 +++ b/runtime/doc/if_cscop.txt
-@@ -256,9 +256,12 @@ started will have no effect!
+@@ -257,9 +257,12 @@ started will have no effect!
  'cscopequickfix' specifies whether to use quickfix window to show cscope
  results.  This is a list of comma-separated values. Each item consists of
- |cscope-find| command (s, g, d, c, t, e, f or i) and flag (+, - or 0).
+ |cscope-find| command (s, g, d, c, t, e, f, i or a) and flag (+, - or 0).
 +The '+' and '-' flags may be followed by an optional '!'.
  '+' indicates that results must be appended to quickfix window,
 -'-' implies previous results clearance, '0' or command absence - don't use
@@ -28,12 +28,12 @@ index d8dc48f..bd5b217 100644
 +Search is performed from start until first command occurrence.
  The default value is "" (don't use quickfix anyway).  The following value
  seems to be useful: >
- 	:set cscopequickfix=s-,c-,d-,i-,t-,e-
+ 	:set cscopequickfix=s-,c-,d-,i-,t-,e-,a-
 diff --git a/src/if_cscope.c b/src/if_cscope.c
-index 4a72907..27e7acf 100644
+index cf308bc..46803e9 100644
 --- a/src/if_cscope.c
 +++ b/src/if_cscope.c
-@@ -1292,7 +1292,8 @@ cs_find_common(
+@@ -1298,7 +1298,8 @@ cs_find_common(
  		     */
  		    qi = (bt_quickfix(wp->w_buffer) && wp->w_llist_ref != NULL)
  			?  wp->w_llist_ref : wp->w_llist;
@@ -44,10 +44,10 @@ index 4a72907..27e7acf 100644
  	}
  	mch_remove(tmp);
 diff --git a/src/option.c b/src/option.c
-index 72d8cf7..2548674 100644
+index 2d5f3b8..35e42b4 100644
 --- a/src/option.c
 +++ b/src/option.c
-@@ -7156,18 +7156,42 @@ did_set_string_option(
+@@ -7188,18 +7188,42 @@ did_set_string_option(
  	    p = p_csqf;
  	    while (*p != NUL)
  	    {
