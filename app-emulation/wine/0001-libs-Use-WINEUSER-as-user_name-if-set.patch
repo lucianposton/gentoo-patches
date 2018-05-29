@@ -1,0 +1,41 @@
+From 6bacd8efc3de01fb91c1600227b58a8b29bfa924 Mon Sep 17 00:00:00 2001
+From: Lucian Poston <lucian.poston@gmail.com>
+Date: Sun, 8 May 2016 14:02:46 -0700
+Subject: [PATCH] libs: Use WINEUSER as user_name, if set
+
+---
+ libs/wine/config.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/libs/wine/config.c b/libs/wine/config.c
+index 3b5dd68..98cd783 100644
+--- a/libs/wine/config.c
++++ b/libs/wine/config.c
+@@ -263,6 +263,7 @@ static void init_paths(void)
+     const char *home = getenv( "HOME" );
+     const char *user = NULL;
+     const char *prefix = getenv( "WINEPREFIX" );
++    const char *wine_user = getenv( "WINEUSER" );
+ 
+ #ifdef HAVE_GETPWUID
+     char uid_str[32];
+@@ -282,7 +283,15 @@ static void init_paths(void)
+     if (!(user = getenv( "USER" )))
+         fatal_error( "cannot determine your user name, set the USER environment variable\n" );
+ #endif  /* HAVE_GETPWUID */
+-    user_name = xstrdup( user );
++
++    if (wine_user)
++    {
++        user_name = xstrdup( wine_user );
++    }
++    else
++    {
++        user_name = xstrdup( user );
++    }
+ 
+     /* build config_dir */
+ 
+-- 
+2.7.3
+

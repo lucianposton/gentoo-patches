@@ -1,0 +1,34 @@
+From f521e6585103e7b42c86797d0582ae741e005507 Mon Sep 17 00:00:00 2001
+From: Lucian Poston <lucian.poston@gmail.com>
+Date: Thu, 1 Feb 2018 06:35:19 -0800
+Subject: [PATCH] better stackoverflow error messages
+
+---
+ dlls/ntdll/signal_i386.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/dlls/ntdll/signal_i386.c b/dlls/ntdll/signal_i386.c
+index 8b9101903b..fa6e58b5b3 100644
+--- a/dlls/ntdll/signal_i386.c
++++ b/dlls/ntdll/signal_i386.c
+@@ -1919,7 +1919,7 @@ static EXCEPTION_RECORD *setup_exception_record( ucontext_t *sigcontext, void *s
+     {
+         /* stack overflow on last page, unrecoverable */
+         UINT diff = (char *)NtCurrentTeb()->DeallocationStack + 4096 - (char *)(stack - 1);
+-        WINE_ERR( "stack overflow %u bytes in thread %04x eip %08x esp %08x stack %p-%p-%p\n",
++        WINE_ERR( "stack ooverflow %u bytes in thread %04x eip %08x esp %08x stack %p-%p-%p\n",
+                   diff, GetCurrentThreadId(), (unsigned int) EIP_sig(sigcontext),
+                   (unsigned int) ESP_sig(sigcontext), NtCurrentTeb()->DeallocationStack,
+                   NtCurrentTeb()->Tib.StackLimit, NtCurrentTeb()->Tib.StackBase );
+@@ -1932,7 +1932,7 @@ static EXCEPTION_RECORD *setup_exception_record( ucontext_t *sigcontext, void *s
+         else
+         {
+             UINT diff = (char *)NtCurrentTeb()->Tib.StackLimit - (char *)(stack - 1);
+-            WINE_ERR( "stack overflow %u bytes in thread %04x eip %08x esp %08x stack %p-%p-%p\n",
++            WINE_ERR( "stack access below stack limit %u bytes in thread %04x eip %08x esp %08x stack %p-%p-%p\n",
+                       diff, GetCurrentThreadId(), (unsigned int) EIP_sig(sigcontext),
+                       (unsigned int) ESP_sig(sigcontext), NtCurrentTeb()->DeallocationStack,
+                       NtCurrentTeb()->Tib.StackLimit, NtCurrentTeb()->Tib.StackBase );
+-- 
+2.13.6
+

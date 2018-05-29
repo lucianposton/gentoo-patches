@@ -1,0 +1,40 @@
+From c16ba362f6e17849a2449d27a034e402adee808c Mon Sep 17 00:00:00 2001
+From: Lucian Poston <lucian.poston@gmail.com>
+Date: Tue, 10 May 2016 07:05:00 -0700
+Subject: [PATCH] kernel32: Use WINECOMPUTERNAME as computer_name, if set
+
+Signed-off-by: Lucian Poston <lucian.poston@gmail.com>
+---
+ dlls/kernel32/computername.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/dlls/kernel32/computername.c b/dlls/kernel32/computername.c
+index 1b5f4aa..0879667 100644
+--- a/dlls/kernel32/computername.c
++++ b/dlls/kernel32/computername.c
+@@ -261,11 +261,18 @@ void COMPUTERNAME_Init (void)
+         char hbuf[256];
+         int hlen = sizeof (hbuf);
+         char *dot;
+-        TRACE( "retrieving Unix host name\n" );
+-        if ( gethostname ( hbuf, hlen ) )
++        const char *wine_computer_name = getenv( "WINECOMPUTERNAME" );
++        if ( wine_computer_name ) {
++            strcpy ( hbuf, wine_computer_name );
++        }
++        else
+         {
+-            strcpy ( hbuf, default_ComputerName );
+-            WARN( "gethostname() error: %d, using host name %s\n", errno, hbuf );
++            TRACE( "retrieving Unix host name\n" );
++            if ( gethostname ( hbuf, hlen ) )
++            {
++                strcpy ( hbuf, default_ComputerName );
++                WARN( "gethostname() error: %d, using host name %s\n", errno, hbuf );
++            }
+         }
+         hbuf[MAX_COMPUTERNAME_LENGTH] = 0;
+         dot = strchr ( hbuf, '.' );
+-- 
+2.7.3
+
